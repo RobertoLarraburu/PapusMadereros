@@ -17,10 +17,10 @@ document.addEventListener("DOMContentLoaded", function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Guarda el token o un indicador de sesión en localStorage
+                // Guardar la información del usuario
                 localStorage.setItem("isAuthenticated", "true");
+                localStorage.setItem("userData", JSON.stringify(data.user));
                 
-                // Redirige al usuario a la página de inicio
                 Swal.fire({
                     icon: 'success',
                     title: 'Logueado correctamente',
@@ -30,7 +30,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     window.location.href = "/industria/plantilla/index.html";
                 });
             } else {
-                // Error en el login
                 Swal.fire({
                     icon: 'error',
                     title: 'Error en el inicio de sesión',
