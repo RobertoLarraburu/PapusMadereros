@@ -25,3 +25,6 @@ $router->delete('/users/{id}', 'UserController@destroy');
 
 $router->post('/login', 'LoginController@login');
 $router->post('/register', 'UserController@register');
+
+$router->post('/sensor-data', 'SensorDataController@store');
+$router->get('/sensor-data', 'SensorDataController@index');
