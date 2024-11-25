@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datos del Sensor</title>
+</head>
+<body>
+    <h1>Datos del Sensor</h1>
+    <h2>Troncos actuales</h2>
+    <p id="troncosActuales">Cargando...</p> <!-- Mostrar el número de troncos -->
+
+    <h2>Largo actual</h2>
+    <p id="largoActual">Cargando...</p> <!-- Mostrar el largo -->
+
+    <script>
+        async function fetchSensorData() {
+            try {
+                const response = await fetch('http://localhost/lumen/public/sensor-data');
+                if (!response.ok) throw new Error('Error en la solicitud');
+                const data = await response.json();
+
+                // Validar formato de los datos
+                if (!Array.isArray(data) || data.some(d => typeof d.troncos !== 'number' || typeof d.largo !== 'number')) {
+                    throw new Error('Los datos del servidor no tienen el formato esperado');
+                }
+
+                // Obtener el último valor de troncos y largo
+                const ultimoDato = data[data.length - 1] || {};
+                const troncos = ultimoDato.troncos || 0;
+                const largo = ultimoDato.largo || 0;
+
+                // Mostrar troncos y largo en sus respectivos párrafos
+                document.getElementById('troncosActuales').textContent = `Troncos: ${troncos}`;
+                document.getElementById('largoActual').textContent = `Largo: ${largo} metros`;
+
+            } catch (error) {
+                console.error('Error al obtener los datos del sensor:', error);
+                document.getElementById('troncosActuales').textContent = 'Error al cargar los datos';
+                document.getElementById('largoActual').textContent = 'Error al cargar los datos';
+            }
+        }
+
+        // Llamar a fetchSensorData cada 2 segundos
+        fetchSensorData(); // Llamada inicial
+        setInterval(fetchSensorData, 2000); // Actualizar cada 2 segundos
+    </script>
+</body>
+</html>
