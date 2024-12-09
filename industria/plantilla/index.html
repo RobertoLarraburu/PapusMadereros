@@ -8,6 +8,7 @@
 
   <script src="AuthCheck.js"></script>
   <script src="grafico.js"></script>
+  <script src="sensor.js"></script>
 
     <!-- Agregar SweetAlert2 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.all.min.js"></script>
@@ -140,33 +141,41 @@ document.addEventListener("DOMContentLoaded", function() {
                       </button>
                     </div>
                   </div>
-                  <!-- /.card-header -->
+
                   <div class="card-body">
                     <div class="row">
-                      <div class="col-md-8">
-                        <p class="text-center">
-                          <strong>Riesgos de Incidentes: 1 Agosto, 2024 - 30 Noviembre, 2024</strong>
-                        </p>
-    
-                        <div class="chart">
-                          <!-- Sales Chart Canvas -->
-                          <canvas id="grafico" height="180" style="height: 180px;"></canvas>
+                        <div class="col-md-8">
+                            <p class="text-center">
+                                <strong>Altura de Troncos: 1 Agosto, 2024 - 30 Noviembre, 2024</strong>
+                            </p>
+            
+                            <div class="chart">
+                                <!-- Canvas del Gráfico -->
+                                <canvas id="troncosChart" height="180" style="height: 180px;"></canvas>
+                            </div>
                         </div>
-                        <!-- /.chart-responsive -->
-                      </div>
-    
-<div class="card-footer">
-  <div class="row justify-content-center"> <!-- Agregar esta clase -->
-    <div class="col-sm-3 col-6">
-      <div class="description-block border-right">
-        <h5 class="description-header"> 35 </h5>
-        <span class="description-text">Cantidad total de troncos detectados</span>
+
+        <!-- Card Footer para mostrar los datos -->
+        <div class="card-footer">
+          <div class="row justify-content-center">
+              <div class="col-sm-3 col-6">
+                  <div class="description-block border-right">
+                      <h5 class="description-header" id="troncosActuales">...</h5> <!-- Mostrar la cantidad de troncos -->
+                      <span class="description-text">Cantidad total de troncos detectados</span>
+                  </div>
+              </div>
+              <div class="col-sm-3 col-6">
+                  <div class="description-block border-right">
+                      <h5 class="description-header" id="largoActual">...</h5> <!-- Mostrar el largo del último tronco -->
+                      <span class="description-text">Largo del último tronco detectado</span>
+                  </div>
+              </div>
+          </div>
       </div>
-    </div>
-    <div class="col-sm-3 col-6">
-      <div class="description-block border-right">
-        <h5 class="description-header"> 10 cm</h5>
-        <span class="description-text">Largo del último tronco detectado</span>
+  
+
+      
+        
       </div>
     </div>
   </div>
@@ -179,6 +188,38 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 
+<script>
+  async function fetchSensorData() {
+      try {
+          const response = await fetch('http://localhost/lumen/public/sensor-data');
+          if (!response.ok) throw new Error('Error en la solicitud');
+          const data = await response.json();
+
+          // Validar formato de los datos
+          if (!Array.isArray(data) || data.some(d => typeof d.troncos !== 'number' || typeof d.largo !== 'number')) {
+              throw new Error('Los datos del servidor no tienen el formato esperado');
+          }
+
+          // Obtener el último valor de troncos y largo
+          const ultimoDato = data[data.length - 1] || {};
+          const troncos = ultimoDato.troncos || 0;
+          const largo = ultimoDato.largo || 0;
+
+          // Mostrar troncos y largo en sus respectivos párrafos
+          document.getElementById('troncosActuales').textContent = `${troncos}`;
+          document.getElementById('largoActual').textContent = `${largo} CM`;
+
+      } catch (error) {
+          console.error('Error al obtener los datos del sensor:', error);
+          document.getElementById('troncosActuales').textContent = 'Error al cargar los datos';
+          document.getElementById('largoActual').textContent = 'Error al cargar los datos';
+      }
+  }
+
+  // Llamar a fetchSensorData cada 2 segundos
+  fetchSensorData(); // Llamada inicial
+  setInterval(fetchSensorData, 2000); // Actualizar cada 2 segundos
+</script>
 
 
 
